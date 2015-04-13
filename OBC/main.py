@@ -8,6 +8,11 @@ import process_message_from_ground
 # main(): setup and start listen server
 #
 def main(argv):
+	print("usage:  {optional:ipv4address-for-listen}")
+	ipv4address = "localhost"
+	if len(sys.argv) > 1:
+		ipv4address = str(sys.argv[1])
+		print("will listen at IP "+ipv4address)
 	
 	# Setup several parallel listeners
 	ports_and_callbacks = []
@@ -15,7 +20,7 @@ def main(argv):
 	
 	# Start server and wait here for keyboard interrupt
 	s = server_multiport.server()
-	s.start(ports_and_callbacks, True)
+	s.start(ports_and_callbacks, ipv4address, True)
 
 
 #-----------------------------------------------------------
