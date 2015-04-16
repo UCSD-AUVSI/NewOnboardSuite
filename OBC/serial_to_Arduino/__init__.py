@@ -1,1 +1,2 @@
 import ArduinoUSB
+import globalvar_connection

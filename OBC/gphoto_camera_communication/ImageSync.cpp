@@ -8,7 +8,8 @@
 #include <semaphore.h>
 
 #include "SharedInfo.h"
-#include "TLMSync.h"
+#include "CameraControl.h"
+//#include "TLMSync.h"
 
 //Struct that sets up a linked list node
 //Holds CameraFile objects (basically just images in memory) and the filename that this image will be saved to disk with
@@ -34,7 +35,7 @@ int initImageSync(){
 //Creates a new CF node, adds to end of CF Queue
 int AddFile(CameraFile* file, const char* filename){
     sem_wait(&FileQSem); //Wait for RemoveFile to possibly finish
-    CF* newcf = malloc(sizeof(CF));
+    CF* newcf = (CF*)malloc(sizeof(CF));
 
     if(newcf == NULL){
         sem_post(&FileQSem);
@@ -43,7 +44,7 @@ int AddFile(CameraFile* file, const char* filename){
 
     //Setup new CF object's data
     newcf -> my_File = file;
-    newcf -> filename = malloc(strlen(filename)+1);
+    newcf -> filename = (char*)malloc(strlen(filename)+1);
     strcpy(newcf -> filename, filename);
     newcf -> next = NULL;
 
@@ -78,9 +79,16 @@ CF* RemoveFile(){
     return retcf;
 }
 
+char currTLMName[1024];
+void saveLast(long long time){
+    sprintf(currTLMName, "%llu.txt", time);
+    FILE * TLMfile = fopen(currTLMName, "w");
+    fclose(TLMfile);
+}
+
 //GET THREAD
 //Gets Files over USB. Camera -> Memory
-void * GetEvents(){
+void * GetEvents(void*aaa){
     CameraFile* my_File;
     CameraEventType my_Type;
     void* retevent;
@@ -106,7 +114,7 @@ void * GetEvents(){
                 clock_gettime(CLOCK_REALTIME, &time);
                 long long time_millis = time.tv_sec * 1000 + time.tv_nsec / 1000000; 
                 sprintf(filename, "%llu.jpg", time_millis);
-
+                
                 AddFile(my_File, filename);
 
                 //Save the last obtained Telemetry/GPS to disk, with the same filename we just used
@@ -126,7 +134,7 @@ void * GetEvents(){
 
 //SAVE THREAD
 //Saves Files from memory -> disk
-void * SaveFiles(){
+void * SaveFiles(void*aaa){
     while(1){
         //Wait for Get Thread to tell us we have at least one file waiting
         //Put here to avoid busy waiting

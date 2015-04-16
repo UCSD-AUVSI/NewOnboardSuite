@@ -1,7 +1,8 @@
 
 import json
 import os
-from serial_to_Arduino import config as ArduinoUSBconfig
+from serial_to_Arduino import globalvar_connection as ArduinoUSBconn
+from gphoto_camera_communication import globalvar_listenerthread as GPhotoListener
 
 #-----------------------------------------------------------
 #
@@ -18,10 +19,11 @@ def callback(data):
 	if command == "imaging":
 		print("COMMAND WAS IMAGING")
 		if args["do"] == "start":
-			ArduinoUSBconfig.connection.write("1\n")
+			GPhotoListener.globalGPhotoCThread.Start() #make sure gphoto listener is started
+			ArduinoUSBconn.connection.write("1\n")
 			print("told Arduino to START imaging")
 		if args["do"] == "stop":
-			ArduinoUSBconfig.connection.write("0\n")
+			ArduinoUSBconn.connection.write("0\n")
 			print("told Arduino to STOP imaging")
 	
 	if command == "sric-connect":
