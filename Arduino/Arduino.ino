@@ -16,22 +16,12 @@
 */
  
 /*==========================================================================================
-   ARDUINO UNO PINS
+   ARDUINO UNO PINS, and SETTINGS
 */
 
-#define _OBCSerial      Serial  // USB serial interface to OBC
-#define LED             13      // LED Pin
 #define	SHOOT_PIN       12      // Trigger Pin
 
-
-/*==========================================================================================
-   SETTINGS
-*/
-
-#define INTERRUPT_TIMER_HALF_PERIOD_MILLISECONDS  500
-
-#define FLAG_SHOOT (1<<0)
-#define FLAG_TRIGGER_TIMER_STARTED (1<<1)
+#define TIMER_HALF_PERIOD_MILLISECONDS  500
 
 
 /*==========================================================================================
@@ -40,20 +30,22 @@
 
 uint8_t flags = 0;
 
+#define FLAG_SHOOT (1<<0)
+#define FLAG_TRIGGER_TIMER_STARTED (1<<1)
+
 
 /*==========================================================================================
    SETUP
 */
 
 void setup()  {
-    _OBCSerial.begin(19200);
-    
-    pinMode(LED,OUTPUT);
+    Serial.begin(19200);
     pinMode(SHOOT_PIN, OUTPUT);
 }
 
+
 /*==========================================================================================
-   CAMERA SHOOT IMAGE
+   TRIGGER CAMERA SHOOT 
 */
 
 char shootmsg[256];
@@ -63,7 +55,7 @@ void triggerShoot() {
     if(flags & FLAG_SHOOT) {
         memset(shootmsg,0,256);
         sprintf(shootmsg, "shot\n"); //todo: if this Arduino is reading gimbal angles, put them in this message
-        _OBCSerial.print(shootmsg);
+        Serial.print(shootmsg);
     }
     flags ^= FLAG_SHOOT;
 }
@@ -76,33 +68,29 @@ int waitloops = 0;
 
 void loop() {
     // Check for confirm start trigger
-    while(_OBCSerial.available()) {
-        char inputChar = _OBCSerial.read();
+    while(Serial.available()) {
+        char inputChar = Serial.read();
         inputString += inputChar;
-        if(inputChar == '\n') {	// Require newline message deliminator
-            if(inputString.equals("1\n")) {    // Message is "1"
-                flags |= FLAG_TRIGGER_TIMER_STARTED; //enable triggering
-                String stringReceived="received ";
-                _OBCSerial.print(stringReceived+inputString);
+        if(inputChar == '\n') {	// Require newline message deliminator at the end of messages
+            if(inputString.equals("1\n")) {    // Message received: "1\n"
+                flags |= FLAG_TRIGGER_TIMER_STARTED; //enable triggering by setting flag bit to 1
                 inputString = "";
             }
-            if(inputString.equals("0\n")) {    // Message is "0"
-                flags &= (~FLAG_TRIGGER_TIMER_STARTED); //disable triggering
-                String stringReceived="received ";
-                _OBCSerial.print(stringReceived+inputString);
+            if(inputString.equals("0\n")) {    // Message received: "0\n"
+                flags &= (~FLAG_TRIGGER_TIMER_STARTED); //disable triggering by setting flag bit to 0
                 inputString = "";
             }
         }
     }
     
     waitloops++;
-    if(waitloops >= INTERRUPT_TIMER_HALF_PERIOD_MILLISECONDS) {
+    if(waitloops >= TIMER_HALF_PERIOD_MILLISECONDS) {
         if(flags & FLAG_TRIGGER_TIMER_STARTED) {
             triggerShoot();
         }
         waitloops = 0;
     }
-    delay(1);
+    delay(1); //wait one millisecond
 }
 
 

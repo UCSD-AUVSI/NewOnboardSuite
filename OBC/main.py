@@ -8,13 +8,14 @@ import process_message_from_ground
 # main(): setup and start listen server
 #
 def main(argv):
-	print("usage:  {optional:ipv4address-for-listen}")
-	ipv4address = "localhost"
-	if len(sys.argv) > 1:
-		ipv4address = str(sys.argv[1])
-		print("will listen at IP "+ipv4address)
+	if len(sys.argv) <= 1:
+		print("args:   [ipv4address for listen; can be localhost]")
+		quit()
 	
-	# Setup several parallel listeners
+	ipv4address = str(sys.argv[1])
+	print("will listen at IP "+ipv4address)
+	
+	# Setup listen server to listen to ground station
 	ports_and_callbacks = []
 	ports_and_callbacks.append((ports.listenport_from_ground, process_message_from_ground.callback))
 	
