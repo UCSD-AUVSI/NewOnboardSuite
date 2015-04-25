@@ -141,11 +141,11 @@ void * SaveFiles(void*aaa){
         sem_wait(&NewFileSem);
         CF* my_CF = RemoveFile(); //Dequeue
         if(my_CF != NULL){
+            printf("\nFile %s saved!\n", my_CF->filename);
             gp_file_save(my_CF -> my_File, my_CF -> filename);
             gp_file_free(my_CF -> my_File);
             free(my_CF -> filename);
             free(my_CF);
-            //			printf("\nFile Saved!\n");
         }
     }
     return NULL;

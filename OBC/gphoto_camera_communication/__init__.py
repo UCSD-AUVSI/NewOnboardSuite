@@ -1,2 +1,1 @@
-import pytogphotocpplib
 import globalvar_listenerthread

@@ -1,7 +1,12 @@
 import pytogphotocpplib
+import threading
 
 def doStartCameraListeners():
+	print("todo: fix linker errors with boost python")
 	pytogphotocpplib.initCameraListeners()
+	import time
+	while True:
+		time.sleep(1)
 
 # Use this to dispatch the gphoto camera event listeners to another thread,
 # where they will listen until the heat death of the universe (or this program quits)
@@ -13,6 +18,9 @@ class GPhotoCThread(object):
 		self.mythread.daemon = True
 	def Start(self):
 		if self.started == False:
+			print("starting GPhotoCThread()")
+			if self.mythread.daemon == False:
+				print("WARNING: gphoto thread is not daemon?????")
 			self.started = True
 			self.mythread.start()
 

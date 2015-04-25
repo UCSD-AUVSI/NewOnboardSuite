@@ -46,19 +46,22 @@ int initSuite() {
 bp::object initCameraListeners() {
 	//Initialize all sub classes
 	initSuite();
-
+	
 	//Spawning the three worker threads
 	pthread_t getThread, saveThread;
-
+	
 	pthread_create(&getThread, NULL, GetEvents, NULL);
 	printf("Started Get Thread\n");
+	
 	pthread_create(&saveThread, NULL, SaveFiles, NULL);
 	printf("Started Save Thread\n");
-
-	pthread_join(getThread, NULL);
-	pthread_join(saveThread, NULL);
-
-	return bp::str("threads exited");
+	
+	pthread_detach(getThread); //detach so this can return to Python
+	pthread_detach(saveThread); //detach so this can return to Python
+	
+	//pthread_join(getThread, NULL);
+	//pthread_join(saveThread, NULL);
+	//return bp::str("threads exited");
 }
 
 static void init()

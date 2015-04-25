@@ -2,3 +2,6 @@
 
 *.pyc
 
+# Ignore compiled C/C++ files
+OBC/gphoto_camera_communication/*.o
+OBC/gphoto_camera_communication/py*.so

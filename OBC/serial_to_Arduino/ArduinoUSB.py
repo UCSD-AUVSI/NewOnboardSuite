@@ -1,5 +1,6 @@
 #import PySerial
 import serial
+import time
 
 class ArduinoUSB(object):
 	def __init__(self):
@@ -9,9 +10,14 @@ class ArduinoUSB(object):
 		self.ser.port = "/dev/ttyACM0"
 		self.ser.timeout = 1 #seconds before giving up on read/write operations
 	
-	def write(self, msg):
+	def connect(self):
 		if self.ser.isOpen() == False:
 			self.ser.open()
+			time.sleep(1) #need to wait for connection to "warm up" before messages can be sent (why?)
+	
+	def write(self, msg):
+		if self.ser.isOpen() == False:
+			self.connect()
 		if self.ser.isOpen():
 			self.ser.write(msg)
 	
