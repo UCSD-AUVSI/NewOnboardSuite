@@ -38,12 +38,16 @@ TODO: Clearly define and standardize function error codes
 TODO: Ability to change other settings (not priority)
 TODO: Offload logic from FrontEnd to onboard code
 */
+
 int initSuite() {
 	initImageSync();
 	printf("Initialized Listeners/Syncs\n");
 	return 0;
 }
-bp::object initCameraListeners() {
+
+bp::object initCameraListeners(bp::str ImagesFolderArg) {
+	ImagesFolder = boost::python::extract<std::string>(ImagesFolderArg);
+	
 	//Initialize all sub classes
 	initSuite();
 	

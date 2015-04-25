@@ -1,7 +1,8 @@
+#include "SharedInfo.h"
 #include <stdio.h>
 #include <string.h>
 
-#include <gphoto2/gphoto2.h>
+/*extern*/ std::string ImagesFolder = std::string();
 
 Camera* my_Camera; 
 GPContext* my_Context;

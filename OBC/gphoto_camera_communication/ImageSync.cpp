@@ -2,11 +2,8 @@
 #include <gphoto2/gphoto2.h>
 #include <stdio.h>
 #include <string.h>
-
 #include <time.h>
-
 #include <semaphore.h>
-
 #include "SharedInfo.h"
 #include "CameraControl.h"
 //#include "TLMSync.h"
@@ -81,7 +78,7 @@ CF* RemoveFile(){
 
 char currTLMName[1024];
 void saveLast(long long time){
-    sprintf(currTLMName, "%llu.txt", time);
+    sprintf(currTLMName, "%s/%llu.txt", ImagesFolder.c_str(), time);
     FILE * TLMfile = fopen(currTLMName, "w");
     fclose(TLMfile);
 }
@@ -113,7 +110,7 @@ void * GetEvents(void*aaa){
                 //Get time in ms since Epoch -> used for filename for Skynet purposes
                 clock_gettime(CLOCK_REALTIME, &time);
                 long long time_millis = time.tv_sec * 1000 + time.tv_nsec / 1000000; 
-                sprintf(filename, "%llu.jpg", time_millis);
+                sprintf(filename, "%s/%llu.jpg", ImagesFolder.c_str(), time_millis);
                 
                 AddFile(my_File, filename);
 

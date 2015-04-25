@@ -19,7 +19,14 @@ class ArduinoUSB(object):
 		if self.ser.isOpen() == False:
 			self.connect()
 		if self.ser.isOpen():
-			self.ser.write(msg)
+			try:
+				self.ser.write(msg)
+				if str(msg) == "1\n":
+					print("told Arduino to START imaging")
+				if str(msg) == "0\n":
+					print("told Arduino to STOP imaging")
+			except:
+				print("could not write to Arduino?")
 	
 	def __del__(self):
 		if self.ser.isOpen():
