@@ -1,3 +1,6 @@
-the boost::python code should be callable from Python;
-it should never really return because the listeners it starts will listen forever
-start a new thread from Python to listen
+
+the boost::python code is callable from Python
+
+the listeners are started with "globalvar_listenerthread.py"
+which is started from parent directory's "main.py"
+
