@@ -5,6 +5,9 @@ def doStartCameraListeners():
 	imagesfolder = "../ImagesFromCamera"
 	pytogphotocpplib.initCameraListeners(imagesfolder)
 	import time
+	while pytogphotocpplib.initCameraListeners(imagesfolder) != 0:
+		print("camera not found? waiting for camera to be plugged in...")
+		time.sleep(1)
 	while True:
 		time.sleep(1)
 

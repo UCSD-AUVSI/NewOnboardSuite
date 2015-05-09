@@ -2,6 +2,7 @@
 import json
 import os
 from serial_to_Arduino import globalvar_connection as ArduinoUSBconn
+from networking_to_ground.send_message_to_ground import send_message_to_ground
 
 #-----------------------------------------------------------
 #
@@ -14,6 +15,9 @@ def callback(data):
 	args = json_data["args"]
 	
 	print("command == "+str(command)+", args == "+str(args))
+	
+	if command == "hello":
+		send_message_to_ground(json.dumps({"command":"helloback","args":"x"}))
 	
 	if command == "imaging":
 		print("COMMAND WAS IMAGING")

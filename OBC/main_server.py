@@ -1,6 +1,7 @@
 import sys
 from networking_to_ground import server_multiport
 from networking_to_ground import ports
+from networking_to_ground import globalvar_ground_ip_address
 import process_message_from_ground
 from serial_to_Arduino import globalvar_connection as ArduinoUSBconn
 import gphoto_camera_communication
@@ -10,17 +11,20 @@ import gphoto_camera_communication
 # main(): setup and start listen server
 #
 def main(argv):
-	if len(sys.argv) <= 1:
-		print("args:   [ipv4address for listen; can be localhost]")
+	if len(argv) <= 0:
+		print("args:  {ipv4address-for-listen}  {ipv4address-of-ground}")
 		quit()
-	ipv4address = str(sys.argv[1])
-	print("will listen at IP "+ipv4address)
+	ipv4address = str(argv[0])
+	print("will listen on IP \'"+ipv4address+"\'")
+	
+	globalvar_ground_ip_address.groundipaddress = str(argv[1])
+	print("will reach ground station IP at \'"+globalvar_ground_ip_address.groundipaddress+"\'")
 	
 	# start gphoto listener to camera, which pulls images off the camera
 	gphoto_camera_communication.globalvar_listenerthread.globalGPhotoCThread.Start()
 	
 	# initiate connection to Arduino, which triggers image capture with the trigger cable
-	ArduinoUSBconn.connection.connect() # connect so serial link can "warm up"
+	ArduinoUSBconn.connection.threadedconnect() # connect so serial link can "warm up"
 	
 	# Setup listen server to listen to ground station
 	ports_and_callbacks = []
@@ -29,6 +33,8 @@ def main(argv):
 	# Start PlaneOBC listen server and wait here for keyboard interrupt
 	s = server_multiport.server()
 	s.start(ports_and_callbacks, ipv4address, True)
+	
+	print("server done?????????????????????????????????????????????????")
 
 
 #-----------------------------------------------------------

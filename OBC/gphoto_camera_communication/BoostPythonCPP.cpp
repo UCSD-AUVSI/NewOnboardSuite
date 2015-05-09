@@ -40,7 +40,11 @@ TODO: Offload logic from FrontEnd to onboard code
 */
 
 int initSuite() {
-	initImageSync();
+	int returnedcamerainit = initImageSync();
+	if(returnedcamerainit != 0) {
+		printf("warning: error when initializing image sync\n");
+		return -1;
+	}
 	printf("Initialized Listeners/Syncs\n");
 	return 0;
 }
@@ -49,23 +53,22 @@ bp::object initCameraListeners(bp::str ImagesFolderArg) {
 	ImagesFolder = boost::python::extract<std::string>(ImagesFolderArg);
 	
 	//Initialize all sub classes
-	initSuite();
+	if(initSuite() == 0) {
+		//Spawning the three worker threads
+		pthread_t getThread, saveThread;
 	
-	//Spawning the three worker threads
-	pthread_t getThread, saveThread;
+		pthread_create(&getThread, NULL, GetEvents, NULL);
+		printf("Started Get Thread\n");
 	
-	pthread_create(&getThread, NULL, GetEvents, NULL);
-	printf("Started Get Thread\n");
+		pthread_create(&saveThread, NULL, SaveFiles, NULL);
+		printf("Started Save Thread\n");
 	
-	pthread_create(&saveThread, NULL, SaveFiles, NULL);
-	printf("Started Save Thread\n");
-	
-	pthread_detach(getThread); //detach so this can return to Python
-	pthread_detach(saveThread); //detach so this can return to Python
-	
-	//pthread_join(getThread, NULL);
-	//pthread_join(saveThread, NULL);
-	//return bp::str("threads exited");
+		pthread_detach(getThread); //detach so this can return to Python
+		pthread_detach(saveThread); //detach so this can return to Python
+		
+		return bp::object(0); //i.e. success
+	}
+	return bp::object(-1); //i.e. error
 }
 
 static void init()

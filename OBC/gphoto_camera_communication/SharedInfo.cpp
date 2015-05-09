@@ -13,13 +13,13 @@ int initCamera(){
     my_Context = gp_context_new();
 
     int result = gp_camera_init(my_Camera, my_Context);
-    printf("\n\nCamera Init Result: %d\n\n", result);
+    printf("Camera Init Result: %d\n", result);
 
     if(result == -105){
-        printf("Camera not found, quitting.\n\n");
+        printf("Camera not found, quitting.\n");
         return -105;
-    } 
-    printf("initcamer thingy\n");	
+    }
+    printf("camera successfully found!\n");	
 
     return 0;
 }
