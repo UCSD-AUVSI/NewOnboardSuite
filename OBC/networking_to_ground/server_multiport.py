@@ -63,9 +63,15 @@ class server:
 def start_port_listener(port, callback, ipv4address, keep_running_until_interrupt):
 	
 	listensocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	listensocket.bind((ipv4address, port))
+	keeptrying = True
+	while keeptrying == True:
+		try:	
+			listensocket.bind((ipv4address, port))
+			keeptrying = False
+		except socket.error:
+			print("server couldnt bind socket? "+str(sys.exc_info()[0]))
+			time.sleep(0.5)
 	listensocket.listen(0) # 0 for debugging; 3-5 for release version
-	
 	print("socket bound for listening on port "+str(port))
 	
 	while keep_running_until_interrupt.is_set():
