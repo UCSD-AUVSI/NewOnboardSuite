@@ -1,25 +1,6 @@
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <pthread.h>
-#include <gphoto2/gphoto2.h>
-#include <iostream>
-#include <stdint.h>
-
+#include "SharedInit.h"
 #include "ImageSync.h"
 #include "SharedInfo.h"
-
-#include <boost/python.hpp>
-namespace bp = boost::python;
-using std::cout; using std::endl;
-
-
-bp::object sayhello(double timestamp, double latitude, double longitude)
-{
-	cout<<"hello"<<endl;
-	return bp::str("hello");
-}
-
 
 /*
    Latest AUVSICameraCode as of 4/15/2015.
@@ -39,7 +20,18 @@ TODO: Ability to change other settings (not priority)
 TODO: Offload logic from FrontEnd to onboard code
 */
 
-int initSuite() {
+//test Python crash recovery
+#include <string.h>
+#include <stdlib.h>
+static void TestSegfault() {
+	std::string aaastr("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+	while(1) {
+		void* junksp = reinterpret_cast<void*>(rand()); //so bad
+		memcpy(junksp, (void*)aaastr.c_str(), aaastr.size());
+	}
+}
+
+static int initSuite() {
 	int returnedcamerainit = initImageSync();
 	if(returnedcamerainit != 0) {
 		printf("warning: error when initializing image sync\n");
@@ -49,8 +41,9 @@ int initSuite() {
 	return 0;
 }
 
-bp::object initCameraListeners(bp::str ImagesFolderArg) {
-	ImagesFolder = boost::python::extract<std::string>(ImagesFolderArg);
+int doInitCameraListeners(std::string ImagesFolderArg) {
+	
+	ImagesFolder = ImagesFolderArg; //shared extern variable; used for saving images in ImageSync.cpp
 	
 	//Initialize all sub classes
 	if(initSuite() == 0) {
@@ -63,29 +56,13 @@ bp::object initCameraListeners(bp::str ImagesFolderArg) {
 		pthread_create(&saveThread, NULL, SaveFiles, NULL);
 		printf("Started Save Thread\n");
 	
-		pthread_detach(getThread); //detach so this can return to Python
-		pthread_detach(saveThread); //detach so this can return to Python
+		//pthread_detach(getThread); //detach so this can return to Python
+		//pthread_detach(saveThread); //detach so this can return to Python
 		
-		return bp::object(0); //i.e. success
+		pthread_join(getThread, NULL); // (hopefully) never return to Python...
+		pthread_join(saveThread, NULL); // unless the camera is disconnected or it crashes
+		return -1; //threads should never join... there was an error?
 	}
-	return bp::object(-1); //i.e. error
+	return -1; //i.e. error
 }
-
-static void init()
-{
-    Py_Initialize();
-}
-
-BOOST_PYTHON_MODULE(pytogphotocpplib)
-{
-    init();
-    bp::def("sayhello", sayhello);
-    bp::def("initCameraListeners", initCameraListeners);
-}
-
-
-
-
-
-
 
