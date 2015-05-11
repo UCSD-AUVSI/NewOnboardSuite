@@ -11,22 +11,29 @@ def callback(data):
 	
 	# this needs to be a common interface between all UCSD AUVSI software parts: MissionDirector, Heimdall, NewOnboardSuite, etc.
 	json_data = json.loads(data)
-	command = json_data["command"]
+	cmd = json_data["cmd"]
 	args = json_data["args"]
 	
-	print("command == "+str(command)+", args == "+str(args))
+	if cmd == "status":
+		if "hello" in args:
+			send_message_to_ground(json.dumps({"cmd":"status","args":{"hello":"reply"}}))
+		if "arduino" in args:
+			send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":ArduinoUSBconn.connection.GetStatusString()}}))
 	
-	if command == "hello":
-		send_message_to_ground(json.dumps({"command":"helloback","args":"x"}))
-	
-	if command == "imaging":
-		print("COMMAND WAS IMAGING")
+	if cmd == "imaging":
+		print("COMMAND WAS IMAGING, ARGS WERE "+str(args))
 		if args["do"] == "start":
-			ArduinoUSBconn.connection.write("1\n")
+			if ArduinoUSBconn.connection.write("1\n"):
+				send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":"imaging STARTED"}}))
+			else:
+				send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":"failed to start imaging"}}))
 		if args["do"] == "stop":
-			ArduinoUSBconn.connection.write("0\n")
+			if ArduinoUSBconn.connection.write("0\n"):
+				send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":"imaging STOPPED"}}))
+			else:
+				send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":"failed to stop imaging"}}))
 	
-	if command == "sric-connect":
+	if cmd == "sric-connect":
 		ip_address = args["ip"]
 		subnet = args["subnet"]
 		folder = args["folder"]
@@ -38,7 +45,7 @@ def callback(data):
 			# run script 
 			login_credentials=True
 	
-	if command == "sric-upload":
+	if cmd == "sric-upload":
 		# try and upload image to team folder
 		path = args["folder"]
 		

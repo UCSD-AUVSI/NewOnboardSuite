@@ -25,8 +25,13 @@ class ArduinoUSB(object):
 					time.sleep(1)
 		self.tryingtoautoconnect = False
 	
+	def GetStatusString(self):
+		if self.ser.isOpen():
+			return "connected"
+		return "NOT-connected"
+	
 	def threadedconnect(self):
-		if self.tryingtoautoconnect == False:
+		if self.tryingtoautoconnect == False and self.ser.isOpen() == False:
 			self.tryingtoautoconnect = True
 			self.mythread = threading.Thread(target=self.tryconnect)
 			self.mythread.daemon = True
@@ -42,8 +47,10 @@ class ArduinoUSB(object):
 					print("told Arduino to START imaging")
 				if str(msg) == "0\n":
 					print("told Arduino to STOP imaging")
+				return True
 			except:
 				print("could not write to Arduino?")
+		return False
 	
 	def __del__(self):
 		if self.ser.isOpen():
