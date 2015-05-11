@@ -1,7 +1,6 @@
 import sys
 from networking_to_ground import server_multiport
 from networking_to_ground import ports
-from networking_to_ground import globalvar_ground_ip_address
 import process_message_from_ground
 from serial_to_Arduino import globalvar_connection as ArduinoUSBconn
 import gphoto_camera_communication
@@ -17,8 +16,8 @@ def main(argv):
 	ipv4address = str(argv[0])
 	print("will listen on IP \'"+ipv4address+"\'")
 	
-	globalvar_ground_ip_address.groundipaddress = str(argv[1])
-	print("will reach ground station IP at \'"+globalvar_ground_ip_address.groundipaddress+"\'")
+	ports.groundipaddress = str(argv[1])
+	print("will reach ground station IP at \'"+ports.groundipaddress+"\'")
 	
 	# start gphoto listener to camera, which pulls images off the camera
 	gphoto_camera_communication.globalvar_listenerthread.globalGPhotoCThread.Start()

@@ -1,11 +1,10 @@
 import socket, threading
-import globalvar_ground_ip_address
 import ports
 
 def send_message_to_ground(msg):
 	
 	# Use this to dispatch the message to another thread so the main thread can't freeze
-	thread = threading.Thread(target=private___dispatch_msg, args=(msg,ports.outport_to_ground,globalvar_ground_ip_address.groundipaddress))
+	thread = threading.Thread(target=private___dispatch_msg, args=(msg, ports.outport_to_ground, ports.groundipaddress))
 	thread.daemon = True
 	thread.start()
 
