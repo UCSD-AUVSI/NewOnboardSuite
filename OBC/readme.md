@@ -5,7 +5,6 @@ todo: synchronize GPS telemetry with those JPEGs
 
 requirements to run this:
 sudo pip install pyserial
-sudo apt-get install libboost-python-dev
 
 need to cd into "gphoto_camera_communication" and make (run command "make")
 since the C/C++ code needs to be compiled

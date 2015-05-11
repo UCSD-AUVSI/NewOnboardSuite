@@ -8,12 +8,6 @@ def send_message_to_ground(msg):
 	thread = threading.Thread(target=private___dispatch_msg, args=(msg,ports.outport_to_ground,globalvar_ground_ip_address.groundipaddress))
 	thread.daemon = True
 	thread.start()
-	
-	# Send message using the main thread (TCP may cause a freeze if connection is bad)
-	#s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	#s.connect((globalvar_ground_ip_address.groundipaddress, ports.outport_to_ground))
-	#s.send(msg)
-	#s.close()
 
 
 #--------------------------------------------------------------------------------------

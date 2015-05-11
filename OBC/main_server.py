@@ -28,7 +28,7 @@ def main(argv):
 	
 	# Setup listen server to listen to ground station
 	ports_and_callbacks = []
-	ports_and_callbacks.append((ports.listenport_from_ground, process_message_from_ground.callback))
+	ports_and_callbacks.append((ports.listenport_from_ground, process_message_from_ground.callback, True))
 	
 	# Start PlaneOBC listen server and wait here for keyboard interrupt
 	s = server_multiport.server()

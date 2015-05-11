@@ -4,12 +4,13 @@
 #
 
 import select, socket, sys, time, threading
+import ssl
 
 
 #-------------------------------------------------------------------
 # Starts a listen server, listening on as many ports as you provide
 #
-# Argument: a list of 2-tuples, each has: (port, callbackfunction)
+# Argument: a list of 3-tuples, each has: (port, callbackfunction, boolean-SSL-secured?)
 #
 # When messages are received on those ports, the callbacks are
 #   called with the data that was provided in the message
@@ -39,7 +40,7 @@ class server:
 			
 			self.threads = []
 			for port_and_callback in ports_and_callbacks:
-				self.threads.append(threading.Thread(target=start_port_listener, args=(port_and_callback[0], port_and_callback[1], ipv4address, self.keep_running)))
+				self.threads.append(threading.Thread(target=start_port_listener, args=(port_and_callback[0], port_and_callback[1], ipv4address, port_and_callback[2], self.keep_running)))
 			for thread in self.threads:
 				thread.daemon = True
 				thread.start()
@@ -60,9 +61,17 @@ class server:
 # Listen on one port (don't use this outside this file)
 # When a message is received, give it to the callback
 #
-def start_port_listener(port, callback, ipv4address, keep_running_until_interrupt):
+def start_port_listener(port, callback, ipv4address, ssl_secured, keep_running_until_interrupt):
 	
-	listensocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	if ssl_secured and ipv4address != "localhost":
+		listensocket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		listensocket = ssl.wrap_socket(listensocket_,
+						ssl_version=ssl.PROTOCOL_TLSv1,
+						cert_reqs=ssl.CERT_REQUIRED,
+						ca_certs='/etc/ssl/certs/ucsd-auvsi-cert.crt')
+	else:
+		listensocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	
 	keeptrying = True
 	while keeptrying == True:
 		try:	

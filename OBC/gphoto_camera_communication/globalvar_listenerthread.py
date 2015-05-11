@@ -1,12 +1,12 @@
-import subprocess
+import subprocess, os
 import threading
-import os
 
 def doStartCameraListeners():
-	imagesfolder = "../ImagesFromCamera"
+	imagesfolder = "../../ImagesFromCamera"
+	exe2call = "./gphotocppexec"
+	currfolderpath = os.path.dirname(os.path.abspath(__file__))
+	callresult = subprocess.call([exe2call, imagesfolder], cwd=currfolderpath)
 	import time
-	exe2call = str(os.path.dirname(os.path.abspath(__file__)))+"/gphotocppexec"
-	callresult = subprocess.call([exe2call, imagesfolder])
 	while callresult != 0:
 		if callresult != -1:
 			if callresult == -11:
@@ -15,7 +15,7 @@ def doStartCameraListeners():
 				print("unusual error from camera subprocess: code "+str(callresult))
 		print("camera not found? waiting for camera to be plugged in...")
 		time.sleep(1)
-		callresult = subprocess.call([exe2call, imagesfolder])
+		callresult = subprocess.call([exe2call, imagesfolder], cwd=currfolderpath)
 	while True:
 		time.sleep(1)
 
