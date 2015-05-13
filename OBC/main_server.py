@@ -10,14 +10,19 @@ import gphoto_camera_communication
 # main(): setup and start listen server
 #
 def main(argv):
-	if len(argv) <= 0:
+	if len(argv) < 2:
 		print("args:  {ipv4address-for-listen}  {ipv4address-of-ground}")
 		quit()
 	ipv4address = str(argv[0])
 	print("will listen on IP \'"+ipv4address+"\'")
 	
-	ports.groundipaddress = str(argv[1])
-	print("will reach ground station IP at \'"+ports.groundipaddress+"\'")
+	ssl_details = server_multiport.SSLSecurityDetails(True)
+	ssl_details.cacerts = "/home/auvsi/AUVSI/sslcerts/MDclientJason.crt"
+	ssl_details.certfile = "/home/auvsi/AUVSI/sslcerts/nobs-auvsi-cert-server.crt"
+	ssl_details.keyfile = "/home/auvsi/AUVSI/sslcerts/nobs-auvsi-cert-server.key.nopass"
+	
+	#ports.groundipaddress = str(argv[1])
+	#print("will reach ground station IP at \'"+ports.groundipaddress+"\'")
 	
 	# start gphoto listener to camera, which pulls images off the camera
 	gphoto_camera_communication.globalvar_listenerthread.globalGPhotoCThread.Start()
@@ -27,11 +32,11 @@ def main(argv):
 	
 	# Setup listen server to listen to ground station
 	ports_and_callbacks = []
-	ports_and_callbacks.append((ports.listenport_from_ground, process_message_from_ground.callback, True))
+	ports_and_callbacks.append((ports.port_tofrom_ground, process_message_from_ground.callback, ssl_details))
 	
 	# Start PlaneOBC listen server and wait here for keyboard interrupt
-	s = server_multiport.server()
-	s.start(ports_and_callbacks, ipv4address, True)
+	ports.global_listenserver = server_multiport.server()
+	ports.global_listenserver.start(ports_and_callbacks, ipv4address, True, True)
 	
 	print("server done?????????????????????????????????????????????????")
 

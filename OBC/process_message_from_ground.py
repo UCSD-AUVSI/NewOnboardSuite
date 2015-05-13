@@ -3,13 +3,16 @@ import json
 import os
 from serial_to_Arduino import globalvar_connection as ArduinoUSBconn
 from networking_to_ground.send_message_to_ground import send_message_to_ground
+from networking_to_ground import ports
 
 #-----------------------------------------------------------
 #
-def callback(data):
+def callback(data, addrinfo):
 	try:
+		print("callback -- addrinfo -- "+str(addrinfo))
+		
 		print "received message from ground station: \"" + str(data) + "\""
-	
+		
 		# this needs to be a common interface between all UCSD AUVSI software parts: MissionDirector, Heimdall, NewOnboardSuite, etc.
 		json_data = json.loads(data)
 		cmd = json_data["cmd"]
