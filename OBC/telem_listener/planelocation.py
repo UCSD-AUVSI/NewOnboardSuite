@@ -17,25 +17,24 @@ class GPSTelemListener(object):
         print "Getting mavlink Connection:"
         while True:
             #location = connection.location()
-            location = Location(37.235,39.323,400,20, 90)
-            self.lock.aquire()
+            location = mavutil.location(37.235,39.323,400,20, 90)
+            self.lock.acquire()
             self.current = {"lat":location.lat,"lng":location.lng, "alt":location.alt, "rel_alt":location.rel_alt, "heading":location.heading}
             self.lock.release()
             time.sleep(50)
 
     def ask_gps(self):
-        self.lock.aquire()
+        self.lock.acquire()
         location = self.current
         self.lock.release()
         return location
 
-	def threadedconnect(self):
-		if self.listener_started == False:
-			self.listener_started = True
-			self.mythread = threading.Thread(target=self.run_location)
-			self.mythread.daemon = True
-			self.mythread.start()
-
+    def threadedconnect(self):
+        if self.listener_started == False:
+            self.listener_started = True
+            self.mythread = threading.Thread(target=self.run_location)
+            self.mythread.daemon = True
+            self.mythread.start()
 
     def get_gps_callback(m, connection):
         mtype = m.get_type()

@@ -32,8 +32,8 @@ def main(argv):
 	# initiate connection to Arduino, which triggers image capture with the trigger cable
 	ArduinoUSBconn.connection.threadedconnect() # connect so serial link can "warm up"
 
-    # create gps listener which listens for gps coordinates from whatever
-    GPSTelem.connection.threadedconnect()
+	# create gps listener which listens for gps coordinates from whatever
+	GPSTelem.connection.threadedconnect()
 
 	# create folder watch that adds exif data to images
 	ExifData.connection.threadedconnect()

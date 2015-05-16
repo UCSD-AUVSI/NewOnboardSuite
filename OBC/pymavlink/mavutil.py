@@ -78,7 +78,7 @@ class location(object):
         self.lat = lat
         self.lng = lng
         self.alt = alt
-        self.rel_alt
+        self.rel_alt = rel_alt
         self.heading = heading
 
     def __str__(self):
