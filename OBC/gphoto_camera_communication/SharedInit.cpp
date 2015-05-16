@@ -41,9 +41,27 @@ static int initSuite() {
 	return 0;
 }
 
+#include <fstream>
+bool check_if_file_exists(std::string filename) {
+	std::ifstream myfile(filename);
+	if(myfile.is_open() && myfile.good()) {
+		myfile.close();
+		return true;
+	}
+	return false;
+}
+bool check_if_directory_exists(std::string dir_name) {
+	return dir_name.empty()==false && check_if_file_exists(dir_name);
+}
+
 int doInitCameraListeners(std::string ImagesFolderArg) {
 	
 	ImagesFolder = ImagesFolderArg; //shared extern variable; used for saving images in ImageSync.cpp
+	if(check_if_directory_exists(ImagesFolder) == false) {
+		printf("Warning: images folder \'%s\' could not be found!!!\n", ImagesFolder.c_str());
+	} else {
+		printf("images will be saved to: \'%s\'\n", ImagesFolder.c_str());
+	}
 	
 	//Initialize all sub classes
 	if(initSuite() == 0) {

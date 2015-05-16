@@ -44,35 +44,6 @@ class server:
 		print "Server done shutting down."
 		self.readytostart = True
 	
-	def GetSocketOfClientOnPort(self, portnum):
-		for idx in range(len(self.ThreadedListenSocks)):
-			print("checking portnum "+str(portnum)+" on idx "+str(idx)+" whose connection status is "+str(self.ThreadedListenSocks[idx].ClientConnectedOnSocket))
-			if self.ThreadedListenSocks[idx].portnum == portnum and self.ThreadedListenSocks[idx].ClientConnectedOnSocket:
-				print("returning valid client socket on idx"+str(idx))
-				return (True, self.ThreadedListenSocks[idx].ClientSocket)
-		print("no valid client socket found")
-		return (False, 0)
-	
-	def ReplyToSocketOnPort(self, portnum, msg):
-		for idx in range(len(self.ThreadedListenSocks)):
-			print("checking portnum "+str(portnum)+" on idx "+str(idx)+" whose connection status is "+str(self.ThreadedListenSocks[idx].ClientConnectedOnSocket))
-			if self.ThreadedListenSocks[idx].portnum == portnum and self.ThreadedListenSocks[idx].ClientConnectedOnSocket:
-				print("writing valid client socket on idx"+str(idx))
-				self.ThreadedListenSocks[idx].ClientSocket.send(msg)
-				return True
-		print("no valid client socket found")
-		return False
-	
-	def CheckAllSocketsBound(self):
-		socketsboundlen = len(self.ThreadedListenSocks)
-		numsocketsbound = 0
-		for idx in range(socketsboundlen):
-			if self.ThreadedListenSocks[idx].SocketBoundBoolean:
-				numsocketsbound = numsocketsbound + 1
-		if numsocketsbound == socketsboundlen:
-			return True
-		return False
-	
 	def start(self, ports_and_callbacks, ipv4address, wait_for_interrupt, keep_retrying_to_bind_socket):
 		
 		if self.readytostart == True:
@@ -144,11 +115,11 @@ class server:
 				while keep_running_until_interrupt.is_set(): #keep receiving from this client until client shuts down
 					#print "port "+str(port)+" is waiting for data from client..."
 					data = self.ThreadedListenSocks[thisthreadidx].ClientSocket.recv(1024)
-					if not data: continue
+					if not data: break
 					#print "port "+str(port)+" received data from client: \"" + str(data) + "\""
 					callback(data, caddress)
 				
-				print("closing socket with client....................................................")
+				#print("closing socket with client....................................................")
 				self.ThreadedListenSocks[thisthreadidx].ClientSocket.close()
 		
 		listensocket.close()

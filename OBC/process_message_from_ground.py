@@ -10,6 +10,7 @@ from networking_to_ground import ports
 def callback(data, addrinfo):
 	try:
 		print("callback -- addrinfo -- "+str(addrinfo))
+		ports.groundipaddress = addrinfo[0]
 		
 		print "received message from ground station: \"" + str(data) + "\""
 		

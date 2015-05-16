@@ -16,10 +16,10 @@ def main(argv):
 	ipv4address = str(argv[0])
 	print("will listen on IP \'"+ipv4address+"\'")
 	
-	ssl_details = server_multiport.SSLSecurityDetails(True)
-	ssl_details.cacerts = "/home/auvsi/AUVSI/sslcerts/MDclientJason.crt"
-	ssl_details.certfile = "/home/auvsi/AUVSI/sslcerts/nobs-auvsi-cert-server.crt"
-	ssl_details.keyfile = "/home/auvsi/AUVSI/sslcerts/nobs-auvsi-cert-server.key.nopass"
+	ports.server_ssl_details = server_multiport.SSLSecurityDetails(True)
+	ports.server_ssl_details.cacerts = "/home/auvsi/AUVSI/sslcerts/MDclientJason.crt"
+	ports.server_ssl_details.certfile = "/home/auvsi/AUVSI/sslcerts/nobs-auvsi-cert-server.crt"
+	ports.server_ssl_details.keyfile = "/home/auvsi/AUVSI/sslcerts/nobs-auvsi-cert-server.key.nopass"
 	
 	#ports.groundipaddress = str(argv[1])
 	#print("will reach ground station IP at \'"+ports.groundipaddress+"\'")
@@ -32,7 +32,7 @@ def main(argv):
 	
 	# Setup listen server to listen to ground station
 	ports_and_callbacks = []
-	ports_and_callbacks.append((ports.port_tofrom_ground, process_message_from_ground.callback, ssl_details))
+	ports_and_callbacks.append((ports.port_from_ground, process_message_from_ground.callback, ports.server_ssl_details))
 	
 	# Start PlaneOBC listen server and wait here for keyboard interrupt
 	ports.global_listenserver = server_multiport.server()
