@@ -34,19 +34,19 @@ class AddExifData(object):
         absolute_alt = location["alt"]
         relative_alt = location["rel_alt"]
         lat = location["lat"]
-        long = location["lng"]
+        longg = location["lng"]
         heading = location["heading"]
         calc_ground = absolute_alt - relative_alt
 	
-	print("add_exif_data() called on file \""+filename+"\", found latitude "+str(lat)+" and longitude "+str(long))
+	print("add_exif_data() called on file \""+filename+"\", found latitude "+str(lat)+" and longitude "+str(longg))
 	
         im = Image.open(FOLDER+"/"+filename)
         exif_dict = piexif.load(im.info["exif"])
         exif_dict["GPS"][piexif.GPSIFD.GPSSpeed] = (int(round(calc_ground*100)), 100)
         exif_dict["GPS"][piexif.GPSIFD.GPSAltitude] = (int(round(absolute_alt*100)), 100)
         exif_dict["GPS"][piexif.GPSIFD.GPSImgDirection] = (int(round(heading*1000)), 1000)
-        exif_dict["GPS"][piexif.GPSIFD.GPSLongitude] = ((int(round(long*1000000)), 1000000))
-        exif_dict["GPS"][piexif.GPSIFD.GPSLatitude] = ((int(round(lat*1000000)), 100000))
+        exif_dict["GPS"][piexif.GPSIFD.GPSLongitude] = ((int(round(abs(longg)*1000)), 1000))
+        exif_dict["GPS"][piexif.GPSIFD.GPSLatitude] = ((int(round(lat*1000)), 1000))
         exif_dict["GPS"][piexif.GPSIFD.GPSTrack] = ((int(round(relative_alt*100)), 100))
         exif_bytes = piexif.dump(exif_dict)
         im.save(OUTPUTFOLDER+"/"+filename, "jpeg", exif=exif_bytes, quality=90)

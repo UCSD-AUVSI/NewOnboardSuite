@@ -25,12 +25,12 @@ class ArduinoUSB(object):
 					self.ser.port = "/dev/ttyACM1"
 				else:
 					self.ser.port = "/dev/ttyACM0"
-
 				try:
 					self.ser.open()
 					time.sleep(1) #need to wait for connection to "warm up" before messages can be sent (why?)
 					keeptrying = False
 					self.StartPolling()
+					print("ARDUINO WAS CONNECTED ON \'"+self.ser.port+"\'")
 				except serial.serialutil.SerialException:
 					print("waiting for Arduino to be connected")
 					keeptrying = True
