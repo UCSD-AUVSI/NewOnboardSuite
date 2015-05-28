@@ -4,6 +4,7 @@ import os
 from serial_to_Arduino import globalvar_connection as ArduinoUSBconn
 from networking_to_ground.send_message_to_ground import send_message_to_ground
 from networking_to_ground import ports
+import OBC_temp_and_CPU_status
 
 #-----------------------------------------------------------
 #
@@ -12,19 +13,33 @@ def callback(data, addrinfo):
 		print("callback -- addrinfo -- "+str(addrinfo))
 		ports.groundipaddress = addrinfo[0]
 		
-		print "received message from ground station: \"" + str(data) + "\""
+		print("received message from ground station: \"" + str(data) + "\" of type "+str(type(data)))
 		
 		# this needs to be a common interface between all UCSD AUVSI software parts: MissionDirector, Heimdall, NewOnboardSuite, etc.
 		json_data = json.loads(data)
+		print("json message from ground station: \"" + str(json_data) + "\"")
+		
 		cmd = json_data["cmd"]
 		args = json_data["args"]
 		
 		if cmd == "status":
+			statusargs = {}
 			if "hello" in args:
-				send_message_to_ground(json.dumps({"cmd":"status","args":{"hello":"reply"}}))
+				statusargs["hello"] = "reply"
 			if "arduino" in args:
-				send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":ArduinoUSBconn.connection.CheckWriteability()}}))
-	
+				statusargs["arduino"] = ArduinoUSBconn.connection.CheckWriteability()
+			if "cpu" in args:
+				cpumsg = ""
+				try:
+					temps = OBC_temp_and_CPU_status.GetCPUTemps()
+					freqsinfo = OBC_temp_and_CPU_status.GetCPUfrequencySettings()
+					cpumsg = json.dumps((temps,freqsinfo))
+				except:
+					cpumsg = "Exception in OBC_temp_and_CPU_status"
+				statusargs["cpu"] = cpumsg
+			if len(statusargs) > 0:
+				send_message_to_ground(json.dumps({"cmd":"status","args":statusargs}))
+		
 		if cmd == "imaging":
 			print("COMMAND WAS IMAGING, ARGS WERE "+str(args))
 			if "start" in args:

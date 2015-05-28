@@ -12,8 +12,8 @@ def doStartCameraListeners():
 			if callresult == -11:
 				print("WARNING: SEGFAULT IN CAMERA CODE")
 			else:
-				print("unusual error from camera subprocess: code "+str(callresult))
-		print("camera not found? waiting for camera to be plugged in...")
+				print(" unusual error from camera subprocess: code "+str(callresult))
+		print("was the camera not found? waiting for camera to be plugged in...")
 		time.sleep(1)
 		callresult = subprocess.call([exe2call, imagesfolder], cwd=currfolderpath)
 	while True:

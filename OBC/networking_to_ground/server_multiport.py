@@ -44,6 +44,16 @@ class server:
 		print "Server done shutting down."
 		self.readytostart = True
 	
+	def CheckAllSocketsBound(self):
+		socketsboundlen = len(self.ThreadedListenSocks)
+		numsocketsbound = 0
+		for idx in range(socketsboundlen):
+			if self.ThreadedListenSocks[idx].SocketBoundBoolean:
+				numsocketsbound = numsocketsbound + 1
+		if numsocketsbound == socketsboundlen:
+			return True
+		return False
+	
 	def start(self, ports_and_callbacks, ipv4address, wait_for_interrupt, keep_retrying_to_bind_socket):
 		
 		if self.readytostart == True:
@@ -83,7 +93,7 @@ class server:
 				listensocket.bind((ipv4address, port))
 				keeptrying = False
 			except socket.error:
-				print("server couldnt bind socket? "+str(sys.exc_info()[0]))
+				print("server couldnt bind socket? "+str(sys.exc_info()[0])+" attempted on (ip,port) == ("+str(ipv4address)+", "+str(port)+")")
 				if keep_retrying_to_bind_socket == False:
 					print("failed to bind socket... quitting attempts")
 					return
@@ -100,7 +110,7 @@ class server:
 				#print "port "+str(port)+" is waiting for a new client!"
 				(clientsock, caddress) = listensocket.accept()
 				
-				if ssl_security.secured and ipv4address != "localhost":
+				if ssl_security.secured and ipv4address != "localhost" and ipv4address != "127.0.0.1":
 					if os.path.isfile(ssl_security.certfile) == False:
 						print("WARNING: SSL CERT-FILE \""+ssl_security.certfile+"\"NOT FOUND")
 					if os.path.isfile(ssl_security.keyfile) == False:

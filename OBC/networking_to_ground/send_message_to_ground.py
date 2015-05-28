@@ -1,6 +1,6 @@
 import socket, threading
 import ports
-import time
+import os, ssl
 import server_multiport
 
 def send_message_to_ground(msg):
@@ -15,14 +15,8 @@ def send_message_to_ground(msg):
 # Use this to dispatch the message to another thread so the main thread can't freeze
 #
 def private___dispatch_msg(msg, port, IPaddr):
-	if IPaddr == "localhost" or IPaddr == "127.0.0.1":
-		print("FORWARDING MESSAGER TO LOCALHOST GROUND STATION")
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		s.connect((IPaddr,port))
-		s.send(msg)
-		s.close()
-	else:
-		print("FORWARDING MESSAGER TO SSL NONLOCAL GROUND STATION")
+	if ports.use_insecure_communications == False and IPaddr != "localhost" and IPaddr != "127.0.0.1":
+		print("FORWARDING MESSAGER TO SSL NONLOCAL GROUND STATION on port "+str(port)+" at IP "+str(IPaddr))
 		
 		if ports.socket_to_ground_is_opened == False:
 			MYCERTFILE = ports.server_ssl_details.certfile
@@ -43,8 +37,15 @@ def private___dispatch_msg(msg, port, IPaddr):
 						keyfile=MYKEYFILE)
 			ports.secure_socket_to_ground.connect((IPaddr,port))
 			ports.socket_to_ground_is_opened = True
+			print("secure socket TO ground has been opened")
 		
 		ports.secure_socket_to_ground.send(msg)
+	else:
+		print("FORWARDING MESSAGER TO UNSECURE GROUND STATION on port "+str(port)+" at IP "+str(IPaddr))
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((IPaddr,port))
+		s.send(msg)
+		s.close()
 
 
 
