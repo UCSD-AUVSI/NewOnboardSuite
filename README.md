@@ -11,4 +11,4 @@ Follow the readme in `ServerSetupScript` so that the onboard Python server will 
 Simply use the Arduino IDE to upload the Arduino.ino script to the Arduino device. It can be tested using the script `test_arduino_usb.py` in the folder `OBC/serial_to_Arduino`, which requires the pyserial library to be installed.
 
 ## Additional Notes
-Images to be used for Heimdall will be saved in ImagesFromCamera; they should already have the proper EXIF data for georeferencing.
+Images to be used for Heimdall will be saved in GeotaggedImagesFromCamera, where they should have the proper EXIF data for georeferencing.

@@ -12,37 +12,48 @@ from telem_listener import globalvar_connection_exif_data as ExifData
 # main(): setup and start listen server
 #
 def main(argv):
-	if len(argv) < 2:
-		print("args:  {ipv4address-for-listen}  {ipv4address-of-ground}")
+	if len(argv) < 1:
+		print("args:  {ipv4address-for-listen}  {optional: use-insecure-comms}")
 		quit()
 	ipv4address = str(argv[0])
 	print("will listen on IP \'"+ipv4address+"\'")
-
-	ports.server_ssl_details = server_multiport.SSLSecurityDetails(True)
-	ports.server_ssl_details.cacerts = "/home/auvsi/AUVSI/sslcerts/MDclientJason.crt"
-	ports.server_ssl_details.certfile = "/home/auvsi/AUVSI/sslcerts/nobs-auvsi-cert-server.crt"
-	ports.server_ssl_details.keyfile = "/home/auvsi/AUVSI/sslcerts/nobs-auvsi-cert-server.key.nopass"
-
-	#ports.groundipaddress = str(argv[1])
-	#print("will reach ground station IP at \'"+ports.groundipaddress+"\'")
-
+	
+	useInsecureComms = False
+	if len(argv) > 1:
+		try:
+			if int(argv[1]) != 0:
+				useInsecureComms = True
+				print("USING INSECURE COMMS")
+		except:
+			print("could not use insecure comms; try using integer 1 or 0")
+	
+	if useInsecureComms:
+		ports.use_insecure_communications = True
+		ports.server_ssl_details = server_multiport.SSLSecurityDetails(False)
+		print("starting UNSECURE listener!")
+	else:
+		ports.server_ssl_details = server_multiport.SSLSecurityDetails(True)
+		ports.server_ssl_details.cacerts = "/home/auvsi/AUVSI/sslcerts/MDclientJason.crt"
+		ports.server_ssl_details.certfile = "/home/auvsi/AUVSI/sslcerts/nobs-auvsi-cert-server.crt"
+		ports.server_ssl_details.keyfile = "/home/auvsi/AUVSI/sslcerts/nobs-auvsi-cert-server.key.nopass"
+	
 	# start gphoto listener to camera, which pulls images off the camera
 	gphoto_camera_communication.globalvar_listenerthread.globalGPhotoCThread.Start()
-
+	
 	# initiate connection to Arduino, which triggers image capture with the trigger cable
 	ArduinoUSBconn.connection.threadedconnect() # connect so serial link can "warm up"
-
+	
 	# create gps listener which listens for gps coordinates from whatever
 	GPSTelem.connection.threadedconnect()
-
+	
 	# create folder watch that adds exif data to images
 	ExifData.connection.threadedconnect()
-
+	
 	# Setup listen server to listen to ground station
 	ports_and_callbacks = []
-
+	
 	ports_and_callbacks.append((ports.port_from_ground, process_message_from_ground.callback, ports.server_ssl_details))
-
+	
 	# Start PlaneOBC listen server and wait here for keyboard interrupt
 	ports.global_listenserver = server_multiport.server()
 	ports.global_listenserver.start(ports_and_callbacks, ipv4address, True, True)

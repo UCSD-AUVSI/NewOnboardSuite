@@ -34,10 +34,10 @@ static void TestSegfault() {
 static int initSuite() {
 	int returnedcamerainit = initImageSync();
 	if(returnedcamerainit != 0) {
-		printf("warning: error when initializing image sync\n");
+		printf(" warning: error when initializing image sync ");
 		return -1;
 	}
-	printf("Initialized Listeners/Syncs\n");
+	printf("\nInitialized Listeners/Syncs\n");
 	return 0;
 }
 
@@ -58,9 +58,9 @@ int doInitCameraListeners(std::string ImagesFolderArg) {
 	
 	ImagesFolder = ImagesFolderArg; //shared extern variable; used for saving images in ImageSync.cpp
 	if(check_if_directory_exists(ImagesFolder) == false) {
-		printf("Warning: images folder \'%s\' could not be found!!!\n", ImagesFolder.c_str());
+		printf("Warning: images folder \'%s\' could not be found!!!", ImagesFolder.c_str());
 	} else {
-		printf("images will be saved to: \'%s\'\n", ImagesFolder.c_str());
+		printf("images will be saved to: \'%s\'", ImagesFolder.c_str());
 	}
 	
 	//Initialize all sub classes
@@ -69,10 +69,10 @@ int doInitCameraListeners(std::string ImagesFolderArg) {
 		pthread_t getThread, saveThread;
 	
 		pthread_create(&getThread, NULL, GetEvents, NULL);
-		printf("Started Get Thread\n");
+		printf("\nStarted Get Thread\n");
 	
 		pthread_create(&saveThread, NULL, SaveFiles, NULL);
-		printf("Started Save Thread\n");
+		printf("\nStarted Save Thread\n");
 	
 		//pthread_detach(getThread); //detach so this can return to Python
 		//pthread_detach(saveThread); //detach so this can return to Python
