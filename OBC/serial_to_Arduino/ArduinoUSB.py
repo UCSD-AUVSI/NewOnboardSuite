@@ -15,7 +15,8 @@ class ArduinoUSB(object):
 		self.ser.timeout = 1 #seconds before giving up on read/write operations
 		self.tryingtoautoconnect = False
 		self.ispolling = False
-		self.gps_queue = deque([])
+		self.gps_dict = {}
+		#self.gps_queue = deque([])
 
 	def private___tryconnect(self):
 		if self.ser.isOpen() == False:
@@ -107,4 +108,5 @@ class ArduinoUSB(object):
 
 	def saveGPS(self):
 		location = GPSTelem.connection.ask_gps()
-		self.gps_queue.append(location)
+		self.gps_dict[time.time()] = location
+        #self.gps_queue.append(location)

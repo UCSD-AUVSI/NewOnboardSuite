@@ -13,13 +13,13 @@ class GPSTelemListener(object):
         self.lock = threading.Lock()
         self.listener_started = False
     def run_location(self):
-        self.conn = mavutil.mavlink_connection("/dev/ttyUSB0", baud=57600)   #tcp:127.0.0.1:9000")
-	print "Set CALLBACK"
-	self.conn.mav.set_callback(self.get_gps_callback)        
-	print "Getting mavlink Connection:"
+        #self.conn = mavutil.mavlink_connection("/dev/ttyUSB0", baud=57600)   #tcp:127.0.0.1:9000")
+        print "Set CALLBACK"
+        #self.conn.mav.set_callback(self.get_gps_callback)
+        print "Getting mavlink Connection:"
         while True:
-            location = self.conn.location()
-            #location = mavutil.location(37.235,39.323,400,20, 90)
+            #location = self.conn.location()
+            location = mavutil.location(37.235,39.323,400,20, 90)
             self.lock.acquire()
             self.current = {"lat":location.lat,"lng":location.lng, "alt":location.alt, "rel_alt":location.rel_alt, "heading":location.heading}
             self.lock.release()
