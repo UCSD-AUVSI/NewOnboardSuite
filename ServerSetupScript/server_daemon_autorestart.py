@@ -1,22 +1,34 @@
 import sys, time
 import subprocess, os
 
+def TryCastInt(x):
+	try:
+		aaaaaa = int(x)
+		return True
+	except:
+		return False
+
 def LaunchServer(argv):
 	currfilepath = os.path.dirname(os.path.abspath(__file__))
 	path2obcserver = currfilepath+"/../OBC"
 	iptolisten = 'x'
-	ipofground = 'x'
+	usescurecoms = 0
 	with open('server_autostartup_settings.txt') as settingsfile:
 		for line in settingsfile:
 			if 'ipv4addressforlisten' in line:
 				linespl = line.replace('\n',' ').split(' ')
 				iptolisten = linespl[2]
 				print("will listen at ip \'"+str(iptolisten)+"\'")
-			if 'ipv4addressofground' in line:
+			if 'usesecurecomms' in line:
 				linespl = line.replace('\n',' ').split(' ')
-				ipofground = linespl[2]
-				print("ground is ip \'"+str(ipofground)+"\'")
-	return subprocess.call(["python", "main_server.py", iptolisten, ipofground], cwd=path2obcserver)
+				maybeusecomms = linespl[2]
+				if TryCastInt(maybeusecomms):
+					usescurecoms = int(maybeusecomms)
+				if usescurecoms != 0:
+					print("USING SECURE COMMS")
+				else:
+					print("WARNING: USING INSECURE COMMS")
+	return subprocess.call(["python", "main_server.py", iptolisten, str(usescurecoms)], cwd=path2obcserver)
 
 def ContinuouslyCheckServer(argv):
 	while True:

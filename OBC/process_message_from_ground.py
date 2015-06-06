@@ -5,6 +5,7 @@ from serial_to_Arduino import globalvar_connection as ArduinoUSBconn
 from networking_to_ground.send_message_to_ground import send_message_to_ground
 from networking_to_ground import ports
 import OBC_temp_and_CPU_status
+import HeimdallLauncher
 
 #-----------------------------------------------------------
 #
@@ -52,6 +53,10 @@ def callback(data, addrinfo):
 					send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":"imaging STOPPED"}}))
 				else:
 					send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":"failed to stop imaging"}}))
+		
+		if cmd == "start-heimdall":
+			HeimdallLauncher.launch()
+			send_message_to_ground(json.dumps({"cmd":"status","args":{"heimdall":"heimdall STARTED"}}))
 		
 		if cmd == "sric-connect":
 			ip_address = args["ip"]
