@@ -14,7 +14,21 @@ class GPSTelemListener(object):
         self.lock = threading.Lock()
         self.listener_started = False
         self.serport = "/dev/ttyUSB0"
-
+	self.possibleSerPorts = ["/dev/ttyUSB0", "/dev/ttyUSB1"]
+	self.ispluggedinlocker = threading.Lock()
+	self.is_plugged_in_and_working = False
+    
+    def GetStatus(self):
+        isplugggedin = False
+	self.ispluggedinlocker.acquire()
+	if self.is_plugged_in_and_working:
+            isplugggedin = True
+	self.ispluggedinlocker.release()
+        if isplugggedin:
+		return "Plugged in."
+	else:
+		return "Not plugged in; checking "+str(self.possibleSerPorts)
+    
     def run_location(self):
         keeptrying = True
         while keeptrying:
@@ -27,10 +41,15 @@ class GPSTelemListener(object):
                 print("waiting for telemetry USB to be plugged in...")
                 time.sleep(1)
                 # if we can't find it on USB0, try other USB ports
-                if self.serport == "/dev/ttyUSB0":
-                    self.serport = "/dev/ttyUSB1"
+                if self.serport == possibleSerPorts[0]:
+                    self.serport = possibleSerPorts[1]
                 else:
-                    self.serport = "/dev/ttyUSB0"
+                    self.serport = possibleSerPorts[0]
+	
+	print("Telemetry USB was connected successfully")
+	self.ispluggedinlocker.acquire()
+	self.is_plugged_in_and_working = True
+	self.ispluggedinlocker.release()
 	
 	print "Set CALLBACK"
 	self.conn.mav.set_callback(self.get_gps_callback)

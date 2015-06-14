@@ -4,8 +4,10 @@ import os
 from serial_to_Arduino import globalvar_connection as ArduinoUSBconn
 from networking_to_ground.send_message_to_ground import send_message_to_ground
 from networking_to_ground import ports
+from telem_listener import globalvar_connection_exif_data as TelemUSBLis
 import OBC_temp_and_CPU_status
 import HeimdallLauncher
+import gphoto_camera_communication
 
 #-----------------------------------------------------------
 #
@@ -38,6 +40,10 @@ def callback(data, addrinfo):
 				except:
 					cpumsg = "Exception in OBC_temp_and_CPU_status"
 				statusargs["cpu"] = cpumsg
+			if "telem" in args:
+				statusargs["telem"] = TelemUSBLis.connection.GetStatus()
+			if "DSLR" in args:
+				statusargs["DSLR"] = gphoto_camera_communication.globalvar_listenerthread.globalGPhotoCThread.CheckIfExists()
 			if len(statusargs) > 0:
 				send_message_to_ground(json.dumps({"cmd":"status","args":statusargs}))
 		

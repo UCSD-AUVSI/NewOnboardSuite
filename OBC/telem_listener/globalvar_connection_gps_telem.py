@@ -1,2 +1,2 @@
-import planelocation
-connection = planelocation.GPSTelemListener()
+import GPSTelemListener
+connection = GPSTelemListener.GPSTelemListener()

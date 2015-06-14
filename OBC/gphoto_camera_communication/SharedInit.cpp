@@ -73,14 +73,23 @@ int doInitCameraListeners(std::string ImagesFolderArg) {
 	
 		pthread_create(&saveThread, NULL, SaveFiles, NULL);
 		printf("\nStarted Save Thread\n");
-	
+		
 		//pthread_detach(getThread); //detach so this can return to Python
 		//pthread_detach(saveThread); //detach so this can return to Python
 		
+		std::ofstream myfile("good_connected.txt");
+		myfile << "waiting for pthreads to join" << endl;
+		
 		pthread_join(getThread, NULL); // (hopefully) never return to Python...
 		pthread_join(saveThread, NULL); // unless the camera is disconnected or it crashes
+		
+		myfile.close()
 		return -1; //threads should never join... there was an error?
 	}
 	return -1; //i.e. error
 }
+
+
+
+
 
