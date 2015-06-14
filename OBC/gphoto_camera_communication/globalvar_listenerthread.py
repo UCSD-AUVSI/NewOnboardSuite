@@ -31,7 +31,6 @@ class GPhotoCThread(object):
 		self.started = False
 		self.mythread = threading.Thread(target=doStartCameraListeners)
 		self.mythread.daemon = True
-		self.
 	def CheckIfExists(self):
 		if os.isfile("good_connected.txt"):
 			return "good_connected"
