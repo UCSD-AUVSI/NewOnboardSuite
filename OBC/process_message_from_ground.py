@@ -55,7 +55,8 @@ def callback(data, addrinfo):
 					send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":"failed to stop imaging"}}))
 		
 		if cmd == "start-heimdall":
-			HeimdallLauncher.launch()
+			print("ground said launch heimdall")
+			HeimdallLauncher.Launch()
 			send_message_to_ground(json.dumps({"cmd":"status","args":{"heimdall":"heimdall STARTED"}}))
 		
 		if cmd == "sric-connect":

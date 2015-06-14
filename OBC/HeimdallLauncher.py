@@ -2,15 +2,18 @@ import os, time, threading
 
 
 def LaunchServer____private():
+	print("Launching Heimdall server: (cd /home/auvsi/AUVSI/Heimdall/build && ./bin/HServer)")
 	os.system("(cd /home/auvsi/AUVSI/Heimdall/build && ./bin/HServer)")
 
 
 def LaunchClient____private():
-	os.system("(cd /home/auvsi/AUVSI/Heimdall/build && ./bin/HClient --stubs --images FOLDER_WATCH [--folder\ /home/auvsi/AUVSI/NewOnboardSuite/GeotaggedImagesFromCamera] --saliency SPECTRAL_SALIENCY --verif PLANE_VERIF)")
+	print("Launching Heimdall client: (cd /home/auvsi/AUVSI/Heimdall/build && ./bin/HClient --stubs --images FOLDER_WATCH_2015 [--folder\ /home/auvsi/AUVSI/NewOnboardSuite/GeotaggedImagesFromCamera] --saliency SPECTRAL_SALIENCY --verif PLANE_VERIF)")
+	os.system("(cd /home/auvsi/AUVSI/Heimdall/build && ./bin/HClient --stubs --images FOLDER_WATCH_2015 [--folder\ /home/auvsi/AUVSI/NewOnboardSuite/GeotaggedImagesFromCamera] --saliency SPECTRAL_SALIENCY --verif PLANE_VERIF)")
 
 
 def Launch():
-	thread = threading.Thread(target=LaunchServer____private)
+	print "Launch Heimdall"
+        thread = threading.Thread(target=LaunchServer____private)
 	thread.daemon = True
 	thread.start()
 	time.sleep(0.1)

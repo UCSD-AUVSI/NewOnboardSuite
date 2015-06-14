@@ -31,13 +31,13 @@ class GPSTelemListener(object):
                     self.serport = "/dev/ttyUSB1"
                 else:
                     self.serport = "/dev/ttyUSB0"
-
+	
 	print "Set CALLBACK"
 	self.conn.mav.set_callback(self.get_gps_callback)
 	print "Getting mavlink Connection:"
         while True:
-            #location = self.conn.location()
-            location = mavutil.location(37.235,39.323,400,20, 90)
+            location = self.conn.location()
+            #location = mavutil.location(37.235,39.323,400,20, 90)
             self.lock.acquire()
             self.current = {"lat":location.lat,"lng":location.lng, "alt":location.alt, "rel_alt":location.rel_alt, "heading":location.heading}
             self.lock.release()

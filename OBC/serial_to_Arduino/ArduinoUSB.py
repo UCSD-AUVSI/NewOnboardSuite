@@ -16,7 +16,8 @@ class ArduinoUSB(object):
 		self.tryingtoautoconnect = False
 		self.ispolling = False
 		self.gps_dict = {}
-		#self.gps_queue = deque([])
+                self.images_count = 0
+		self.gps_queue = deque([])
 
 	def private___tryconnect(self):
 		if self.ser.isOpen() == False:
@@ -100,6 +101,7 @@ class ArduinoUSB(object):
 				elif readmsg == "s\n":
 					# image taken, save most recent gps into queue
 					self.saveGPS()
+                                        #time.sleep(.01)
 				else:
 					print("UNKNOWN MESSAGE FROM ARDUINO: \'"+readmsg+"\'")
 					print("todo: process camera-shoot trigger messages")
@@ -107,6 +109,11 @@ class ArduinoUSB(object):
 		self.ispolling = False
 
 	def saveGPS(self):
-		location = GPSTelem.connection.ask_gps()
-		self.gps_dict[time.time()] = location
-        #self.gps_queue.append(location)
+            #if self.images_count >=1:
+            #    return
+            curtime = time.time()
+            print "Save GPS(Image Taken): "+str(curtime)+" count: "+str(self.images_count)
+            location = GPSTelem.connection.ask_gps()
+	    self.gps_dict[curtime] = location
+            self.images_count+=1
+            self.gps_queue.append(location)

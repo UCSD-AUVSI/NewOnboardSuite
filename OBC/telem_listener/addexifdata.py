@@ -21,6 +21,7 @@ class AddExifData(object):
         self.files = sanitized_files
         self.folder_lock = threading.Lock()
         self.listener_started = False
+        self.adds = 0
 
     def threadedconnect(self):
         if self.listener_started == False:
@@ -32,8 +33,14 @@ class AddExifData(object):
     def add_exif_data(self, filename):
         print "----------------------------------------------------------------------------"
         # pop top gps coordinate from queue
-        #location = ArduinoUSBconn.connection.gps_queue.popleft()
-        ArduinoUSBconn.connection.saveGPS()
+        try:
+            print "Size of Queue: "+ str(len( ArduinoUSBconn.connection.gps_queue))
+            print  ArduinoUSBconn.connection.gps_queue
+            location = ArduinoUSBconn.connection.gps_queue.popleft()
+        except Exception as e:
+            print "Queue is empty"
+            print e
+            return
 
         try:
             im = Image.open(FOLDER+"/"+filename)
@@ -44,6 +51,7 @@ class AddExifData(object):
             print "Error: "+e
             print "----------------------------------------------------------------------------"
             return
+        """
         image_time_s = exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal]
         image_time_ms = int(exif_dict["Exif"][piexif.ExifIFD.SubSecTimeOriginal])
         image_time = time.strptime(image_time_s,"%Y:%m:%d %H:%M:%S")
@@ -51,13 +59,29 @@ class AddExifData(object):
         image_unix = image_unix + image_time_ms/int(len(str(image_time_ms)))
         # copy dict for use in case of modification
         gps_dict = ArduinoUSBconn.connection.gps_dict.copy()
+        
+        
+        if self.adds == 0:
+            lowest = 10000000000000000000
+            for t in gps_dict:
+                if t < lowest:
+                    lowest = t
+            self.beg_obc_clock = lowest
+            self.beg_cam_clock = image_unix
+            self.adds = 1
+
+        print gps_dict
+        print image_unix 
+        # offset camera time to obc time
+        image_offset = abs(image_unix - self.beg_cam_clock) 
 
         closest = 0
         smallest = -1
         for k in gps_dict:
+            obc_offset = abs(k - self.beg_obc_clock)
             diff = abs(k - image_unix)
             if smallest == -1:
-                if diff < 5:
+                if diff < 10:
                     closest = k
                     smallest = diff
             else:
@@ -72,8 +96,8 @@ class AddExifData(object):
         print "Image Time: "+ str(image_unix)
         print "Closest GPS Time: "+ str(closest) + " diff: "+str(smallest)
         print "Location: "+ str(gps_dict[closest])
-        location = gps_dict[closest]
-
+        #location = gps_dict[closest]
+        """ 
 
         absolute_alt = location["alt"]
         relative_alt = location["rel_alt"]
