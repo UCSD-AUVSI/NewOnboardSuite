@@ -15,10 +15,10 @@ def doStartCameraListeners():
 				print(" unusual error from camera subprocess: code "+str(callresult))
 		print("was the camera not found? waiting for camera to be plugged in...")
 		time.sleep(1)
-		if os.isfile("good_connected.txt"):
+		if os.path.isfile("good_connected.txt"):
 			os.system("rm good_connected.txt")
 		callresult = subprocess.call([exe2call, imagesfolder], cwd=currfolderpath)
-		if os.isfile("good_connected.txt"):
+		if os.path.isfile("good_connected.txt"):
 			os.system("rm good_connected.txt")
 	while True:
 		time.sleep(1)
@@ -32,7 +32,7 @@ class GPhotoCThread(object):
 		self.mythread = threading.Thread(target=doStartCameraListeners)
 		self.mythread.daemon = True
 	def CheckIfExists(self):
-		if os.isfile("good_connected.txt"):
+		if os.path.isfile("good_connected.txt"):
 			return "good_connected"
 		return "not connected?"
 	def Start(self):

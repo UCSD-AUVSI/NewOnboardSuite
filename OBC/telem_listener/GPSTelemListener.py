@@ -41,10 +41,10 @@ class GPSTelemListener(object):
                 print("waiting for telemetry USB to be plugged in...")
                 time.sleep(1)
                 # if we can't find it on USB0, try other USB ports
-                if self.serport == possibleSerPorts[0]:
-                    self.serport = possibleSerPorts[1]
+                if self.serport == self.possibleSerPorts[0]:
+                    self.serport = self.possibleSerPorts[1]
                 else:
-                    self.serport = possibleSerPorts[0]
+                    self.serport = self.possibleSerPorts[0]
 	
 	print("Telemetry USB was connected successfully")
 	self.ispluggedinlocker.acquire()
