@@ -16,7 +16,7 @@ def send_message_to_ground(msg):
 #
 def private___dispatch_msg(msg, port, IPaddr):
 	if ports.use_insecure_communications == False and IPaddr != "localhost" and IPaddr != "127.0.0.1":
-		print("FORWARDING MESSAGER TO SSL NONLOCAL GROUND STATION on port "+str(port)+" at IP "+str(IPaddr))
+		print("FORWARDING MESSAGER TO SSL NONLOCAL GROUND STATION on port "+str(port)+" at IP "+str(IPaddr)+": "+str(msg))
 		
 		if ports.socket_to_ground_is_opened == False:
 			MYCERTFILE = ports.server_ssl_details.certfile
@@ -41,7 +41,7 @@ def private___dispatch_msg(msg, port, IPaddr):
 		
 		ports.secure_socket_to_ground.send(msg)
 	else:
-		print("FORWARDING MESSAGER TO UNSECURE GROUND STATION on port "+str(port)+" at IP "+str(IPaddr))
+		print("FORWARDING MESSAGER TO UNSECURE GROUND STATION on port "+str(port)+" at IP "+str(IPaddr)+": "+str(msg))
 		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		s.connect((IPaddr,port))
 		s.send(msg)

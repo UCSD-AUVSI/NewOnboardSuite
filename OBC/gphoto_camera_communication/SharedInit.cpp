@@ -42,6 +42,7 @@ static int initSuite() {
 }
 
 #include <fstream>
+#include <iostream>
 bool check_if_file_exists(std::string filename) {
 	std::ifstream myfile(filename);
 	if(myfile.is_open() && myfile.good()) {
@@ -78,12 +79,12 @@ int doInitCameraListeners(std::string ImagesFolderArg) {
 		//pthread_detach(saveThread); //detach so this can return to Python
 		
 		std::ofstream myfile("good_connected.txt");
-		myfile << "waiting for pthreads to join" << endl;
+		myfile << "waiting for pthreads to join" << std::endl;
 		
 		pthread_join(getThread, NULL); // (hopefully) never return to Python...
 		pthread_join(saveThread, NULL); // unless the camera is disconnected or it crashes
 		
-		myfile.close()
+		myfile.close();
 		return -1; //threads should never join... there was an error?
 	}
 	return -1; //i.e. error
