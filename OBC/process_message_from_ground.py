@@ -49,7 +49,7 @@ def callback(data, addrinfo):
 			if "DSLR" in args:
 				statusargs["DSLR"] = gphoto_camera_communication.globalvar_listenerthread.globalGPhotoCThread.CheckIfExists()
 			if "OBC-Heimdall" in args:
-				statusargs["OBC-Heimdall"] = "todo"
+				statusargs["OBC-Heimdall"] = HeimdallLauncher.heimdallLauncherInstance.CheckStatus()
 			if len(statusargs) > 0:
 				send_message_to_ground(json.dumps({"cmd":"status","args":statusargs}))
 		

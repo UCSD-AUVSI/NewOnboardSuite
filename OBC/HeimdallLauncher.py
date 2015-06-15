@@ -51,6 +51,22 @@ class HeimdallLauncher(object):
 		runcmd.extend(self.heimdallclientargs)
 		self.LaunchHeimallProg(runcmd, True)
 	
+	def CheckStatus(self):
+		def genretmsg(prefix, clBool, svBool):
+			if clBool == False and svBool == False:
+				return(prefix+"Neither server nor client running")
+			elif clBool == True and svBool == False:
+				return(prefix+"Client running but server stopped")
+			elif clBool == False and svBool == True:
+				return(prefix+"Server running but client stopped")
+			else:
+				return(prefix+"Both client and server are running")
+		if self.clientHasBeenLaunched[0] == True and self.serverHasBeenLaunched[0] == True:
+			clBool = (self.clientHasBeenLaunched[1].poll() is None)
+			svBool = (self.serverHasBeenLaunched[1].poll() is None)
+			return genretmsg("good?: ", clBool, svBool)
+		return genretmsg("probably stopped?: ", self.clientHasBeenLaunched[0], self.serverHasBeenLaunched[0])
+	
 	def KillHeimdall(self):
 		if self.serverHasBeenLaunched[0] == True:
 			self.serverHasBeenLaunched[1].kill() #terminate() and wait() is more polite like a Ctrl+C
