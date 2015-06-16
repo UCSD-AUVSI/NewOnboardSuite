@@ -6,6 +6,7 @@ import threading
 import mavutil
 from mavlink import *
 import serial  #used to catch exception when USB serial is not plugged in
+from serial_to_Arduino import globalvar_connection as ArduinoUSBconn
 
 class GPSTelemListener(object):
 
@@ -14,7 +15,8 @@ class GPSTelemListener(object):
         self.lock = threading.Lock()
         self.listener_started = False
         self.serport = "/dev/ttyUSB0"
-	self.possibleSerPorts = ["/dev/ttyUSB0", "/dev/ttyUSB1"]
+	self.possibleSerPortIdxCheck = 0
+	self.possibleSerPorts = ["/dev/ttyUSB0", "/dev/ttyUSB1", "/dev/ttyUSB2", "/dev/ttyUSB3", "/dev/ttyACM0", "/dev/ttyACM1", "/dev/ttyACM2", "/dev/ttyACM3"]
 	self.ispluggedinlocker = threading.Lock()
 	self.is_plugged_in_and_working = False
     
@@ -30,6 +32,13 @@ class GPSTelemListener(object):
 		return "Not plugged in; checking "+str(self.possibleSerPorts)
     
     def run_location(self):
+        while ArduinoUSBconn.connection.trulyConnectedAfterReceivingResponse == False:
+            print("telem is waiting for Arduino to connect before trying to connect")
+            time.sleep(1)
+        arduinoserport = str(ArduinoUSBconn.connection.ser.port)
+        if arduinoserport in self.possibleSerPorts:
+            self.possibleSerPorts.remove(arduinoserport)
+        print("Since arduino connected on "+arduinoserport+", will try to connect telem on other ports: "+str(self.possibleSerPorts))
         keeptrying = True
         while keeptrying:
             try:
@@ -41,10 +50,10 @@ class GPSTelemListener(object):
                 print("waiting for telemetry USB to be plugged in...")
                 time.sleep(1)
                 # if we can't find it on USB0, try other USB ports
-                if self.serport == self.possibleSerPorts[0]:
-                    self.serport = self.possibleSerPorts[1]
-                else:
-                    self.serport = self.possibleSerPorts[0]
+                self.possibleSerPortIdxCheck += 1
+                if self.possibleSerPortIdxCheck == len(self.possibleSerPorts):
+                    self.possibleSerPortIdxCheck = 0
+                self.serport = self.possibleSerPorts[self.possibleSerPortIdxCheck]
 	
 	print("Telemetry USB was connected successfully")
 	self.ispluggedinlocker.acquire()

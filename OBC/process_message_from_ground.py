@@ -53,6 +53,13 @@ def callback(data, addrinfo):
 			if len(statusargs) > 0:
 				send_message_to_ground(json.dumps({"cmd":"status","args":statusargs}))
 		
+		if cmd == "arduino":
+			if "disconnect" in args:
+				ArduinoUSBconn.connection.disconnect()
+				send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":"serial connection restarted"}}))
+				time.sleep(0.25)
+				ArduinoUSBconn.connection.threadedconnect()
+		
 		if cmd == "imaging":
 			print("COMMAND WAS IMAGING, ARGS WERE "+str(args))
 			if "start" in args:
