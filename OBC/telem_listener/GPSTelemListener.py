@@ -6,7 +6,7 @@ import threading
 import mavutil
 from mavlink import *
 import serial  #used to catch exception when USB serial is not plugged in
-from serial_to_Arduino import globalvar_connection as ArduinoUSBconn
+import serial_to_Arduino
 
 class GPSTelemListener(object):
 
@@ -32,10 +32,10 @@ class GPSTelemListener(object):
 		return "Not plugged in; checking "+str(self.possibleSerPorts)
     
     def run_location(self):
-        while ArduinoUSBconn.connection.trulyConnectedAfterReceivingResponse == False:
+        while serial_to_Arduino.globalvar_connection.connection.trulyConnectedAfterReceivingResponse == False:
             print("telem is waiting for Arduino to connect before trying to connect")
             time.sleep(1)
-        arduinoserport = str(ArduinoUSBconn.connection.ser.port)
+        arduinoserport = str(serial_to_Arduino.globalvar_connection.connection.ser.port)
         if arduinoserport in self.possibleSerPorts:
             self.possibleSerPorts.remove(arduinoserport)
         print("Since arduino connected on "+arduinoserport+", will try to connect telem on other ports: "+str(self.possibleSerPorts))

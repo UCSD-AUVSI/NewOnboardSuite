@@ -3,7 +3,7 @@ import time
 import threading
 from networking_to_ground.send_message_to_ground import send_message_to_ground
 import json
-from telem_listener import globalvar_connection_gps_telem as GPSTelem
+import telem_listener
 from collections import deque
 
 class ArduinoUSB(object):
@@ -24,7 +24,7 @@ class ArduinoUSB(object):
 		self.gps_dict = {}
                 self.images_count = 0
 		self.gps_queue = deque([])
-
+	
 	def private___tryconnect(self):
 		if self.ser.isOpen() == False:
 			printidx = 0
@@ -37,10 +37,10 @@ class ArduinoUSB(object):
 				self.ser.port = self.possibleSerPorts[self.possibleSerPortIdxCheck]
 				try:
 					self.ser.open()
-					time.sleep(1.1) #need to wait for connection to "warm up" before messages can be sent (why?)
+					time.sleep(2.0) #need to wait for connection to "warm up" before messages can be sent (tests: if 1 second or less you risk missing it)
 					self.StartPolling()
 					print("ArduinoAutoconnect: found serial device at \'"+str(self.ser.port)+"\': "+self.CheckWriteability())
-					time.sleep(0.9)
+					time.sleep(2.0) #also need to wait for it to reply (tests: if 1 second or less you risk missing it)
 					if self.trulyConnectedAfterReceivingResponse == True:
 						self.KeepTryingtoautoconnect = False
 						print("ArduinoAutoconnect: found the actual arduino at \'"+str(self.ser.port)+"\': confirmed by response")
@@ -54,12 +54,12 @@ class ArduinoUSB(object):
 					print("waiting for Arduino to be connected")
 					printidx = 0
 		self.tryingtoautoconnect = False
-
+	
 	def CheckConnectionBoolean(self):
 		if self.ser.isOpen():
 			return True
 		return False
-
+	
 	def CheckWriteability(self):
 		if self.ser.isOpen():
 			if self.write("g\n") == True:
@@ -67,7 +67,7 @@ class ArduinoUSB(object):
 			else:
 				return str(self.ser.port)+": error-writing"
 		return "NOT-connected"
-
+	
 	def threadedconnect(self):
 		if self.tryingtoautoconnect == False and self.ser.isOpen() == False:
 			self.tryingtoautoconnect = True
@@ -94,7 +94,8 @@ class ArduinoUSB(object):
 	
 	def disconnect(self):
 		self.KeepTryingtoautoconnect = False
-		self.autoconnThread.join()
+		if self.autoconnThread is not None:
+			self.autoconnThread.join()
 		self.stoppolling()
 		if self.ser.isOpen():
 			print("closing serial connection to Arduino")
@@ -144,7 +145,8 @@ class ArduinoUSB(object):
 					self.saveGPS()
 	                                #time.sleep(.01)
 				else:
-					print("UNKNOWN MESSAGE FROM ARDUINO "+str(self.ser.port)+": \'"+readmsg+"\'")
+					print("UNKNOWN ARDUINO MESSAGE")
+				print("message from Arduino "+str(self.ser.port)+": "+str(readmsg))
 				time.sleep(0.001)
 						
 		self.ispolling = False
@@ -153,7 +155,7 @@ class ArduinoUSB(object):
             #if self.images_count >=1:
             #    return
             curtime = time.time()
-            location = GPSTelem.connection.ask_gps()
+            location = telem_listener.globalvar_connection_gps_telem.connection.ask_gps()
             print("Save GPS(Image Taken): "+str(curtime)+" count: "+str(self.images_count)+" location: "+str(location))
 	    self.gps_dict[curtime] = location
             self.images_count+=1

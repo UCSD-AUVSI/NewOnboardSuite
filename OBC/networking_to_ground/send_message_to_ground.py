@@ -1,14 +1,17 @@
 import socket, threading
 import ports
-import os, ssl
+import os, ssl, time
 import server_multiport
 
 def send_message_to_ground(msg):
 	
-	# Use this to dispatch the message to another thread so the main thread can't freeze
-	thread = threading.Thread(target=private___dispatch_msg, args=(msg, ports.port_to_ground, ports.groundipaddress))
-	thread.daemon = True
-	thread.start()
+	if ports.groundipaddress is not None:
+		# Use this to dispatch the message to another thread so the main thread can't freeze
+		thread = threading.Thread(target=private___dispatch_msg, args=(msg, ports.port_to_ground, ports.groundipaddress))
+		thread.daemon = True
+		thread.start()
+	else:
+		print("could not send message \'"+str(msg)+"\' to ground because there is no ground ip address defined yet")
 
 
 #--------------------------------------------------------------------------------------
