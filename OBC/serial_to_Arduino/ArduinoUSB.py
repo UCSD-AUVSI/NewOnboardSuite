@@ -14,7 +14,7 @@ class ArduinoUSB(object):
 		self.ser.port = "/dev/ttyACM0"
 		self.possibleSerPortIdxCheck = 0
 		self.possibleSerPorts = ["/dev/ttyUSB0", "/dev/ttyUSB1", "/dev/ttyUSB2", "/dev/ttyUSB3", "/dev/ttyACM0", "/dev/ttyACM1", "/dev/ttyACM2", "/dev/ttyACM3"]
-		self.ser.timeout = 1 #seconds before giving up on read/write operations
+		self.ser.timeout = 2 #seconds before giving up on read/write operations
 		self.autoconnThread = None
 		self.tryingtoautoconnect = False
 		self.KeepTryingtoautoconnect = False
@@ -36,16 +36,23 @@ class ArduinoUSB(object):
 					self.possibleSerPortIdxCheck = 0
 				self.ser.port = self.possibleSerPorts[self.possibleSerPortIdxCheck]
 				try:
+					self.ser.baudrate = 19200
 					self.ser.open()
-					time.sleep(2.0) #need to wait for connection to "warm up" before messages can be sent (tests: if 1 second or less you risk missing it)
+					time.sleep(2.1) #need to wait for connection to "warm up" before messages can be sent (tests: if 1 second or less you risk missing it)
 					self.StartPolling()
 					print("ArduinoAutoconnect: found serial device at \'"+str(self.ser.port)+"\': "+self.CheckWriteability())
-					time.sleep(2.0) #also need to wait for it to reply (tests: if 1 second or less you risk missing it)
+					time.sleep(2.1)
+					self.CheckWriteability()
+					time.sleep(2.1) #also need to wait for it to reply (tests: if 1 second or less you risk missing it)
 					if self.trulyConnectedAfterReceivingResponse == True:
 						self.KeepTryingtoautoconnect = False
-						print("ArduinoAutoconnect: found the actual arduino at \'"+str(self.ser.port)+"\': confirmed by response")
+						print("ArduinoAutoconnect: found the actual arduino at \'"+str(self.ser.port)+"\': confirmed by response ~~~~~~~~~")
 					else:
-						self.disconnect() #try another serial port, might be the wrong device if we didn't get a response
+						print("ArduinoAutoconnect: that (probably) wasn\'t the arduino... disconnecting")
+						self.stoppolling()
+						if self.ser.isOpen():
+							print("closing serial connection to Arduino")
+							self.ser.close()
 				except serial.serialutil.SerialException:
 					pass
 				time.sleep(0.1)
@@ -120,17 +127,17 @@ class ArduinoUSB(object):
 		self.pollingthread.start()
 	
 	def private___PollArduinoContinuously(self):
-		print("STARTING TO POLL ARDUINO CONTINUOUSLY at "+str(self.ser.port))
+		print("Starting to poll Arduino continuously at "+str(self.ser.port))
 		self.keeppolling = True
 		readerrs = 0
 		while self.keeppolling:
-			time.sleep(0.1)
 			while self.keeppolling and self.CheckConnectionBoolean() == True:
 				readmsg = ""
 				try:
 					readmsg = str(self.ser.readline())
 				except serial.serialutil.SerialException:
 					readerrs += 1
+					print("Arduino read errors: "+str(readerrs))
 					send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":str(str(self.ser.port)+": "+str(readerrs)+" read errors")}}))
 					time.sleep(0.5)
 				
@@ -144,10 +151,11 @@ class ArduinoUSB(object):
 					# image taken, save most recent gps into queue
 					self.saveGPS()
 	                                #time.sleep(.01)
-				else:
-					print("UNKNOWN ARDUINO MESSAGE")
+				#else:
+				#	print("un")
 				print("message from Arduino "+str(self.ser.port)+": "+str(readmsg))
 				time.sleep(0.001)
+			time.sleep(0.1)
 						
 		self.ispolling = False
 	

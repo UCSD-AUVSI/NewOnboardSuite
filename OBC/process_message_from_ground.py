@@ -1,6 +1,6 @@
 
 import json
-import os
+import os, time
 from serial_to_Arduino import globalvar_connection as ArduinoUSBconn
 from networking_to_ground.send_message_to_ground import send_message_to_ground
 from networking_to_ground import ports
@@ -56,8 +56,11 @@ def callback(data, addrinfo):
 		if cmd == "arduino":
 			if "disconnect" in args:
 				ArduinoUSBconn.connection.disconnect()
-				send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":"serial connection restarted"}}))
-				time.sleep(0.25)
+				send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":"serial disconnected"}}))
+			if "reconnect" in args:
+				ArduinoUSBconn.connection.disconnect()
+				send_message_to_ground(json.dumps({"cmd":"status","args":{"arduino":"serial attempting reconnect"}}))
+				time.sleep(1.0)
 				ArduinoUSBconn.connection.threadedconnect()
 		
 		if cmd == "imaging":

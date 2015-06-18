@@ -53,6 +53,7 @@ def private___dispatch_msg(msg, port, IPaddr):
 						s.connect((IPaddr,port))
 						s.send(msg)
 						s.close()
+			keeptrying = False
 		except Exception, e:
 			print("Exception in private___dispatch_msg(), counter "+str(keeptryingctr+1)+": "+str(e))
 			time.sleep(0.5)
